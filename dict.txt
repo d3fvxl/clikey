@@ -1,0 +1,23 @@
+
+func package import var const type struct interface map slice channel goroutine defer select range 
+func main error fmt.Println http.ListenAndServe context.Background time.Sleep strconv.Atoi json.Marshal 
+sync.Mutex atomic.AddInt32 runtime.GOMAXPROCS go build go test go mod tidy go run gofmt linting 
+os.Open os.Create ioutil.ReadFile ioutil.WriteFile ioutil.TempFile bufio.NewScanner bufio.ScanLines 
+sql.Open sql.DB.Exec sql.DB.QueryRow log.Println log.Fatalf io.Writer io.Reader io.Copy 
+encoding/json encoding/csv testing.T assert.Equal errors.New errors.Is errors.Unwrap 
+sort.Sort math.Max math.Min strconv.Itoa strconv.ParseBool reflect.Type reflect.Value panic recover 
+debug.SetGCPercent runtime.NumGoroutine runtime.Caller sync.WaitGroup sync.Once sync.Cond make append 
+len cap copy close new delete select case default switch break continue return go generate 
+const block use export inline error try catch throw thread pointer defer inline generic option 
+zig build zig fmt zig init zig test zig targets zig version std.debug.warn std.log.info std.mem.alloc 
+std.heap.page_allocator std.os.argv std.math.abs std.math.sqrt std.fs.open std.fs.cwd std.fs.createFile 
+std.time.timestamp std.time.sleep std.c.printf std.c.sprintf std.crypto.hashes sha256 hmac md5 
+std.json.stringify std.json.parse std.io.Writer std.io.Reader comptime @typeInfo @field @hasField @type 
+stack heap queue linkedlist binarytree graph recursion iteration hashmap cache mutex semaphore 
+threadsafe parallel concurrent cpu-bound io-bound latency throughput deadlock livelock racecondition 
+goroutine threadpool process pipeline batch singleton factory observer decorator strategy repository 
+userId username password email address isActive isVerified createdAt updatedAt timestamp totalCount 
+temp buffer index data result status config settings params options values input output handler 
+server client request response token key secret lock flag mode path filepath filename size limit offset 
+retry connection socket host port protocol api json xml csv html url session cookie payload header 
+body stream file directory folder log debug info warn error panic recover retry exec process fork 
