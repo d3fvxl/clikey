@@ -22,11 +22,6 @@ pub const Dictionary = struct {
         // read file content into buffer
         const data = try f.readToEndAlloc(alloc, MB);
         const words = try parseWords(alloc, data);
-        debug.print(DEBUG_LOADED, .{
-            path[0..],
-            data.len,
-            words.items.len,
-        });
         const result = alloc.create(Dictionary) catch return error.OutOfMemory;
         result.* = Dictionary{
             .path = path,
