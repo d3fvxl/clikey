@@ -1,11 +1,16 @@
 const ArrayList = @import("std").ArrayList;
+const DictionaryFile = @import("DictionaryFile.zig");
+const DictionaryMock = @import("DictionaryMock.zig").DictionaryMock;
 
 // Dictionary interface.
-pub const Dictionary = struct {
-    ptr: *anyopaque,
-    nextNFunc: *const fn (ptr: *anyopaque, n: usize) anyerror!ArrayList,
+pub const Dictionary = union(enum) {
+    file: DictionaryFile,
+    mock: DictionaryMock,
 
-    fn nextN(self: Dictionary, n: usize) !ArrayList {
-        return self.nextNFunc(self.ptr, n);
+    pub fn nextN(self: Dictionary, n: usize) !ArrayList([]const u8) {
+        switch (self) {
+            .file => |file| return try file.nextN(n),
+            .mock => |mock| return try mock.nextN(n),
+        }
     }
 };

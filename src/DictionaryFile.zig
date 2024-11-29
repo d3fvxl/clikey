@@ -45,7 +45,7 @@ pub fn dictionary(self: DictionaryFile) Dictionary {
     };
 }
 
-pub fn nextN(self: DictionaryFile, _: usize) !ArrayList {
+pub fn nextN(self: DictionaryFile, _: usize) !ArrayList([]const u8) {
     return self.words;
 }
 
