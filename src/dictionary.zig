@@ -43,7 +43,6 @@ pub const Dictionary = struct {
 
     pub fn printWords(self: *const Dictionary) void {
         debug.print("Words len: {d}\n", .{self.words.items.len});
-
         for (self.words.items, 0..) |item, i| {
             debug.print("Word {d}: {s}\n", .{ i, item });
         }
@@ -72,19 +71,16 @@ test "parseWords: parses sequence of words into array list" {
     const a = testing.allocator;
     var list = ArrayList([]const u8).init(a);
     defer list.deinit();
-
     try list.append("test");
     try list.append("mest");
     try list.append("vest");
-
     const input: []const u8 = "test mest vest";
-
     var words = try parseWords(a, input);
     defer words.deinit();
-
     while (list.items.len != 0) {
         const expected: []const u8 = list.pop();
         const actual: []const u8 = words.pop();
+        debug.print("Expected: {s}, Actual: {s}\n", .{expected, actual});
         try testing.expect(mem.eql(u8, expected, actual));
     }
 }
