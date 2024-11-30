@@ -107,3 +107,4 @@ pub fn termSize(file: std.fs.File) !?TermSize {
 test "termSize" {
     std.debug.print("termsize {any}", .{termSize(std.io.getStdOut())});
 }
+

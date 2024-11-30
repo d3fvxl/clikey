@@ -8,13 +8,17 @@ const ScreenTerminal = @import("ScreenTerminal.zig");
 pub fn main() !void {
     const path: []const u8 = "dict.txt";
 
+    // initialize ditionary
     var dictionary_file = try DictionaryFile.init(std.heap.page_allocator, path);
     defer dictionary_file.deinit();
+    const dictionary = Dictionary{ .file = dictionary_file };
 
     const screen_terminal = &ScreenTerminal{};
+    const screen = Screen{ .terminal = screen_terminal };
 
-    const stats = try game.playRound(Dictionary{ .file = dictionary_file }, Screen{ .terminal = screen_terminal });
+    const stats = try game.playRound(dictionary, screen);
     std.debug.print("WPM: {d}", .{stats.wpm});
+    std.posix.exit(0);
 
     // const stdin = std.io.getStdIn().reader();
     // while (true) {

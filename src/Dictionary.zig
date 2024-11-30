@@ -3,7 +3,6 @@ const Allocator = @import("std").mem.Allocator;
 const ArrayList = @import("std").ArrayList;
 const DictionaryFile = @import("DictionaryFile.zig");
 
-
 // Dictionary interface.
 pub const Dictionary = union(enum) {
     file: *const DictionaryFile,
@@ -22,4 +21,3 @@ pub const DictionaryMock = struct {
         return self.nextNFunc(self, n);
     }
 };
-
