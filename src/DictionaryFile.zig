@@ -16,7 +16,7 @@ const DEBUG_LOADED =
 ;
 
 alloc: Allocator,
-words: ArrayList([]const u8),
+words: *ArrayList([]const u8),
 
 pub fn init(alloc: Allocator, path: []const u8) !*const DictionaryFile {
     // open dictionary file
@@ -37,20 +37,18 @@ pub fn deinit(self: DictionaryFile) void {
     self.words.deinit();
 }
 
-// init inits word Dictionary from file by path using alloc Allocator.
-pub fn dictionary(self: DictionaryFile) Dictionary {
-    return .{
-        .ptr = self,
-        .nextN = self.nextN,
-    };
-}
-
-pub fn nextN(self: DictionaryFile, _: usize) !ArrayList([]const u8) {
-    return self.words;
+pub fn nextN(self: DictionaryFile, n: usize) !*ArrayList([]const u8) {
+    debug.print("nextN, n: {d}, words.len: {d}\n", .{ n, self.words.items.len });
+    var result = ArrayList([]const u8).init(self.alloc);
+    for (try self.words.toOwnedSlice()) |word| {
+        try result.append(word);
+        debug.print("append {any}\n", .{word});
+    }
+    return &result;
 }
 
 // parse parses data into std.ArrayList of []const u8 using alloc allocator.
-fn parseWords(alloc: Allocator, data: []const u8) !ArrayList([]const u8) {
+fn parseWords(alloc: Allocator, data: []const u8) !*ArrayList([]const u8) {
     // array of words
     var words = ArrayList([]const u8).init(alloc);
     // split file by line
@@ -64,12 +62,10 @@ fn parseWords(alloc: Allocator, data: []const u8) !ArrayList([]const u8) {
             try words.append(word);
         }
     }
-    return words;
+    return &words;
 }
 
-test "DictionaryFile.init: initialize dictionary with file" {
-
-}
+test "DictionaryFile.init: initialize dictionary with file" {}
 
 test "parseWords: parses sequence of words into array list" {
     const a = testing.allocator;

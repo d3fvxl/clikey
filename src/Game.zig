@@ -11,6 +11,7 @@ pub const RoundStats = struct {
 
 pub fn playRound(dictionary: Dictionary, screen: Screen) !RoundStats {
     const words = try dictionary.nextN(10);
+    print("words {any}", .{words});
     try screen.print(words);
 
     return .{

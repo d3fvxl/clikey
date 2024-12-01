@@ -7,7 +7,7 @@ const DictionaryFile = @import("DictionaryFile.zig");
 pub const Dictionary = union(enum) {
     file: *const DictionaryFile,
 
-    pub fn nextN(self: Dictionary, n: usize) !ArrayList([]const u8) {
+    pub fn nextN(self: Dictionary, n: usize) !*ArrayList([]const u8) {
         switch (self) {
             .file => |file| return try file.nextN(n),
         }

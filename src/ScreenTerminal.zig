@@ -7,11 +7,11 @@ const ArrayList = @import("std").ArrayList;
 
 pub fn clear(_: ScreenTerminal) !void {
     // ANSI escape code to clear the terminal screen
-    std.debug.print("\x1b[2J", .{}); // Clear screen
-    std.debug.print("\x1b[H", .{}); // Move cursor to home position
+    // std.debug.print("\x1b[2J", .{}); // Clear screen
+    // std.debug.print("\x1b[H", .{}); // Move cursor to home position
 }
 
-pub fn print(self: ScreenTerminal, words: ArrayList([]const u8)) !void {
+pub fn print(self: ScreenTerminal, words: *ArrayList([]const u8)) !void {
     try self.clear();
     const ts = try termSize(std.io.getStdOut()) orelse TermSize{
         .width = 60,
@@ -19,7 +19,8 @@ pub fn print(self: ScreenTerminal, words: ArrayList([]const u8)) !void {
     };
 
     var line_width: usize = 0;
-    for (words.items) |word| {
+    for (try words.toOwnedSlice()) |word| {
+        std.debug.print("{d}, {d}\n", .{line_width, word.len});
         line_width += word.len + 1;
     }
 

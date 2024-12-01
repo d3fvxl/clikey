@@ -12,7 +12,7 @@ pub const Screen = union(enum) {
         }
     }
 
-    pub fn print(self: Screen, words: ArrayList([]const u8)) !void {
+    pub fn print(self: Screen, words: *ArrayList([]const u8)) !void {
         switch (self) {
             .terminal => |terminal| try terminal.print(words),
         }
