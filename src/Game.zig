@@ -4,7 +4,7 @@ const Screen = @import("Screen.zig").Screen;
 const Dictionary = @import("Dictionary.zig").Dictionary;
 
 pub const RoundStats = struct {
-    wpm: f64,
+    cpm: f64,
 };
 
 pub fn playRound(
@@ -18,6 +18,8 @@ pub fn playRound(
 
     var char_index: usize = 0; // Index of the current character in the word
     var buf: [1]u8 = undefined;
+    // Record the start time
+    const start_time = std.time.milliTimestamp();
     while (char_index < words.len) {
         const expected_char = words[char_index];
         // Read one character from stdin
@@ -32,7 +34,14 @@ pub fn playRound(
         }
     }
 
+    // Record the end time
+    const end_time = std.time.milliTimestamp();
+    const time_taken_ms = end_time - start_time;
+
+    // Calculate CPM
+    const cpm = @divFloor(@as(i64, @intCast(char_index)), time_taken_ms);
+
     return RoundStats{
-        .wpm = 9,
+        .cpm = @as(f64, @floatFromInt(cpm)) / 1000.0,
     };
 }

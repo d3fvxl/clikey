@@ -20,7 +20,9 @@ pub fn main() !void {
     const screen = Screen{ .terminal = screen_terminal };
     // Play a round of the game.
     const stats = try game.playRound(&dictionary, &screen);
+
+    try screen.clear();
     // Display the results.
     std.debug.print("\nResults:\n", .{});
-    std.debug.print("Words Per Minute (WPM): {d}\n", .{stats.wpm});
+    std.debug.print("Words Per Minute (WPM): {d}\n", .{stats.cpm});
 }
