@@ -2,6 +2,11 @@ const ArrayList = @import("std").ArrayList;
 const ScreenTerminal = @import("ScreenTerminal.zig");
 const ScreenMock = @import("ScreenMock.zig").ScreenMock;
 
+pub const ScreenPixel = struct {
+    row: usize,
+    col: usize,
+};
+
 // Screen interface.
 pub const Screen = union(enum) {
     terminal: *const ScreenTerminal,
@@ -12,9 +17,9 @@ pub const Screen = union(enum) {
         }
     }
 
-    pub fn print(self: Screen, words: *ArrayList([]const u8)) !void {
+    pub fn print(self: Screen, words: []const u8) !ScreenPixel {
         switch (self) {
-            .terminal => |terminal| try terminal.print(words),
+            .terminal => |terminal| return try terminal.print(words),
         }
     }
 

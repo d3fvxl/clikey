@@ -2,29 +2,23 @@ const std = @import("std");
 const game = @import("Game.zig");
 const Dictionary = @import("Dictionary.zig").Dictionary;
 const Screen = @import("Screen.zig").Screen;
-const DictionaryFile = @import("DictionaryFile.zig");
+const DictionaryFile = @import("DictionaryFile.zig").DictionaryFile;
 const ScreenTerminal = @import("ScreenTerminal.zig");
 
 pub fn main() !void {
+    const allocator = std.heap.page_allocator;
     const path: []const u8 = "dict.txt";
 
     // initialize ditionary
-    var dictionary_file = try DictionaryFile.init(std.heap.page_allocator, path);
+    var dictionary_file = try DictionaryFile.init(allocator, path);
     defer dictionary_file.deinit();
-    const dictionary = Dictionary{ .file = dictionary_file };
+    var dictionary = Dictionary{ .file = dictionary_file };
 
     const screen_terminal = &ScreenTerminal{};
     const screen = Screen{ .terminal = screen_terminal };
-
-    const stats = try game.playRound(dictionary, screen);
-    std.debug.print("WPM: {d}", .{stats.wpm});
-    std.posix.exit(0);
-
-    // const stdin = std.io.getStdIn().reader();
-    // while (true) {
-    //     screen.clear();
-    //     try screen.printCenteredText("Hello!");
-    //     const input = try stdin.readByte();
-    //     if (input == 'q') break;
-    // }
+    // Play a round of the game.
+    const stats = try game.playRound(&dictionary, &screen);
+    // Display the results.
+    std.debug.print("\nResults:\n", .{});
+    std.debug.print("Words Per Minute (WPM): {d}\n", .{stats.wpm});
 }

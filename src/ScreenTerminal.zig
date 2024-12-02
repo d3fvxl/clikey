@@ -4,42 +4,37 @@ const io = std.io;
 const os = std.os;
 const ScreenTerminal = @This();
 const ArrayList = @import("std").ArrayList;
+const ScreenPixel = @import("Screen.zig").ScreenPixel;
 
 pub fn clear(_: ScreenTerminal) !void {
     // ANSI escape code to clear the terminal screen
-    // std.debug.print("\x1b[2J", .{}); // Clear screen
-    // std.debug.print("\x1b[H", .{}); // Move cursor to home position
+    std.debug.print("\x1b[2J", .{}); // Clear screen
+    std.debug.print("\x1b[H", .{}); // Move cursor to home position
 }
 
-pub fn print(self: ScreenTerminal, words: *ArrayList([]const u8)) !void {
+pub fn print(self: ScreenTerminal, words: []const u8) !ScreenPixel {
     try self.clear();
     const ts = try termSize(std.io.getStdOut()) orelse TermSize{
         .width = 60,
         .height = 80,
     };
 
-    var line_width: usize = 0;
-    for (try words.toOwnedSlice()) |word| {
-        std.debug.print("{d}, {d}\n", .{line_width, word.len});
-        line_width += word.len + 1;
-    }
-
-    std.debug.print("width: {d}, height: {d}\n", .{ ts.width, ts.height });
-    std.debug.print("text len: {d}", .{line_width});
-
     const row = ts.height / 2; // Center row
     var col: usize = 0;
-    if (ts.width > line_width) {
-        col = (ts.width - line_width) / 2; // Center column
+    if (ts.width > words.len) {
+        col = (ts.width - words.len) / 2; // Center column
     }
-    try move(row, col); // Move cursor to the center
+    try self.move(row, col); // Move cursor to the center
 
-    for (words.items) |word| {
-        std.debug.print("{s} ", .{word});
-    }
+    std.debug.print("{s}", .{words});
+
+    return ScreenPixel{
+        .row = row,
+        .col = col,
+    };
 }
 
-pub fn move(row: usize, col: usize) !void {
+pub fn move(_: ScreenTerminal, row: usize, col: usize) !void {
     // ANSI escape code to move the cursor to a specific position
     std.debug.print("\x1b[{};{}H", .{ row, col });
 }
@@ -108,4 +103,3 @@ pub fn termSize(file: std.fs.File) !?TermSize {
 test "termSize" {
     std.debug.print("termsize {any}", .{termSize(std.io.getStdOut())});
 }
-
