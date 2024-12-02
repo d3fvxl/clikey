@@ -12,6 +12,8 @@ pub fn playRound(
     screen: *const Screen,
 ) !RoundStats {
     const words = try dictionary.nextN(10);
+
+    std.debug.print("{s}", .{words});
     try screen.clear();
     const start_pixel = try screen.print(words);
     try screen.move(start_pixel.row, start_pixel.col);
@@ -25,11 +27,11 @@ pub fn playRound(
         // Read one character from stdin
         _ = try std.posix.read(std.posix.STDIN_FILENO, &buf);
         const char = buf[0];
-        if (char == 'q') {
-            break;
-        }
-        if (buf[0] == expected_char) {
+        if (char == expected_char) {
             char_index += 1;
+            try screen.write("\x1b[32m");
+            try screen.write(buf[0..]);
+            try screen.write("\x1b[0m");
             try screen.move(start_pixel.row, start_pixel.col + char_index);
         }
     }
