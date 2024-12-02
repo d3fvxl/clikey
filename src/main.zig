@@ -6,8 +6,6 @@ const DictionaryFile = @import("DictionaryFile.zig").DictionaryFile;
 const ScreenTerminal = @import("ScreenTerminal.zig");
 
 pub fn main() !void {
-
-
     const allocator = std.heap.page_allocator;
     const path: []const u8 = "dict.txt";
 
