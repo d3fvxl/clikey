@@ -11,13 +11,6 @@ pub fn playRound(
     dictionary: *Dictionary,
     screen: *const Screen,
 ) !RoundStats {
-    const old_mode = try std.posix.tcgetattr(std.posix.STDIN_FILENO);
-    defer std.posix.tcsetattr(std.posix.STDIN_FILENO, .FLUSH, old_mode) catch {};
-    var raw_mode = old_mode;
-    raw_mode.lflag.ECHO = false;
-    raw_mode.lflag.ICANON = false;
-    try std.posix.tcsetattr(std.posix.STDIN_FILENO, .FLUSH, raw_mode);
-
     const words = try dictionary.nextN(10);
     try screen.clear();
     const start_pixel = try screen.print(words);

@@ -6,6 +6,29 @@ const ScreenTerminal = @This();
 const ArrayList = @import("std").ArrayList;
 const ScreenPixel = @import("Screen.zig").ScreenPixel;
 
+old_mode: std.posix.termios,
+alloc: std.mem.Allocator,
+
+pub fn init(alloc: std.mem.Allocator) !*ScreenTerminal{
+    const old_mode = try std.posix.tcgetattr(std.posix.STDIN_FILENO);
+    var raw_mode = old_mode;
+    raw_mode.lflag.ECHO = false;
+    raw_mode.lflag.ICANON = false;
+    try std.posix.tcsetattr(std.posix.STDIN_FILENO, .FLUSH, raw_mode);
+
+    const screen_terminal = try alloc.create(ScreenTerminal);
+    screen_terminal.* = ScreenTerminal{
+        .old_mode = old_mode,
+        .alloc = alloc,
+    };
+    return screen_terminal;
+}
+
+pub fn deinit(self: *ScreenTerminal) !void {
+    try self.alloc.free(self);
+    std.posix.tcsetattr(std.posix.STDIN_FILENO, .FLUSH, self.old_mode) catch {};
+}
+
 pub fn clear(_: ScreenTerminal) !void {
     // ANSI escape code to clear the terminal screen
     std.debug.print("\x1b[2J", .{}); // Clear screen

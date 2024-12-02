@@ -6,6 +6,8 @@ const DictionaryFile = @import("DictionaryFile.zig").DictionaryFile;
 const ScreenTerminal = @import("ScreenTerminal.zig");
 
 pub fn main() !void {
+
+
     const allocator = std.heap.page_allocator;
     const path: []const u8 = "dict.txt";
 
@@ -14,7 +16,7 @@ pub fn main() !void {
     defer dictionary_file.deinit();
     var dictionary = Dictionary{ .file = dictionary_file };
 
-    const screen_terminal = &ScreenTerminal{};
+    const screen_terminal = try ScreenTerminal.init(allocator);
     const screen = Screen{ .terminal = screen_terminal };
     // Play a round of the game.
     const stats = try game.playRound(&dictionary, &screen);
