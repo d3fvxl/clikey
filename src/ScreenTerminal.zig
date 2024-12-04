@@ -4,10 +4,12 @@ const io = std.io;
 const os = std.os;
 const ArrayList = @import("std").ArrayList;
 const ScreenPixel = @import("Screen.zig").ScreenPixel;
+const RoundStats = @import("Game.zig").RoundStats;
 
 pub const ScreenTerminal = struct {
     terminal_inital_mode: std.posix.termios,
     alloc: std.mem.Allocator,
+    ts: TermSize,
 
     pub fn init(alloc: std.mem.Allocator) !*ScreenTerminal {
         const terminal_inital_mode = try std.posix.tcgetattr(std.posix.STDIN_FILENO);
@@ -16,10 +18,16 @@ pub const ScreenTerminal = struct {
         raw_mode.lflag.ICANON = false;
         try std.posix.tcsetattr(std.posix.STDIN_FILENO, .FLUSH, raw_mode);
 
+        const ts = try termSize(std.io.getStdOut()) orelse TermSize{
+            .width = 60,
+            .height = 80,
+        };
+
         const screen_terminal = try alloc.create(ScreenTerminal);
         screen_terminal.* = ScreenTerminal{
             .terminal_inital_mode = terminal_inital_mode,
             .alloc = alloc,
+            .ts = ts,
         };
         return screen_terminal;
     }
@@ -35,18 +43,28 @@ pub const ScreenTerminal = struct {
         try std.io.getStdOut().writer().print("\x1b[H", .{}); // Move cursor to home position
     }
 
+    pub fn centerString(_: ScreenTerminal, ts: TermSize, str: []const u8) usize {
+        var col: usize = 0;
+        if (ts.width > str.len) {
+            col = (ts.width - str.len) / 2;
+        }
+        return col;
+    }
+
+    pub fn move(_: ScreenTerminal, row: usize, col: usize) !void {
+        // ANSI escape code to move the cursor to a specific position
+        try std.io.getStdOut().writer().print("\x1b[{};{}H", .{ row, col });
+    }
+
+    pub fn write(_: ScreenTerminal, chars: []const u8) !void {
+        try std.io.getStdOut().writer().print("{s}", .{chars});
+    }
+
     pub fn print(self: ScreenTerminal, words: []const u8) !ScreenPixel {
         try self.clear();
-        const ts = try termSize(std.io.getStdOut()) orelse TermSize{
-            .width = 60,
-            .height = 80,
-        };
 
-        const row = ts.height / 2; // Center row
-        var col: usize = 0;
-        if (ts.width > words.len) {
-            col = (ts.width - words.len) / 2; // Center column
-        }
+        const col = self.centerString(self.ts, words);
+        const row = self.ts.height / 2; // Center row
         try self.move(row, col); // Move cursor to the center
 
         try std.io.getStdOut().writer().print("{s}", .{words});
@@ -57,13 +75,11 @@ pub const ScreenTerminal = struct {
         };
     }
 
-    pub fn move(_: ScreenTerminal, row: usize, col: usize) !void {
-        // ANSI escape code to move the cursor to a specific position
-        try std.io.getStdOut().writer().print("\x1b[{};{}H", .{ row, col });
-    }
-
-    pub fn write(_: ScreenTerminal, chars: []const u8) !void {
-        try std.io.getStdOut().writer().print("{s}", .{chars});
+    pub fn printStats(self: ScreenTerminal, stats: RoundStats) !void {
+        const col = self.centerString(self.ts, "Your WPM: {d}");
+        const row = self.ts.height / 2; // Center row
+        try self.move(row, col); // Move cursor to the center
+        try std.io.getStdOut().writer().print("Your WPM: {d}, CPM: {d}", .{ stats.wpm, stats.cpm });
     }
 };
 

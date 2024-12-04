@@ -7,11 +7,14 @@ const ScreenTerminal = @import("ScreenTerminal.zig").ScreenTerminal;
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
-    // const path: []const u8 = "dict.txt";
-    const path: []const u8 = "src/ScreenTerminal.zig";
 
-    // Initialize the dictionary
-    var dictionary_file = try DictionaryFile.init(allocator, path);
+    var args = std.process.args();
+    if (!args.skip()) {
+        return error.InvalidArgument;
+    }
+    const path = args.next() orelse return error.InvalidArgument;
+
+    var dictionary_file = try DictionaryFile.init(allocator, path[0..]);
     defer dictionary_file.deinit();
     var dictionary = Dictionary{ .file = dictionary_file };
 
@@ -19,21 +22,14 @@ pub fn main() !void {
     const screen = Screen{ .terminal = screen_terminal };
 
     var stdin = std.io.getStdIn().reader();
-    var stdout = std.io.getStdOut().writer();
 
     while (true) {
-        // Play a round of the game
         const stats = try game.playRound(&dictionary, &screen);
 
         try screen.clear();
-        // Display the results
-        try stdout.print("\nResults:\n", .{});
-        try stdout.print("Characters Per Minute (CPM): {d}\n", .{stats.cpm});
+        try screen.printStats(stats);
 
         _ = try stdin.readByte();
     }
-
-    // Clear the screen before exiting
     try screen.clear();
 }
-

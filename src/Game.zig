@@ -4,6 +4,7 @@ const Screen = @import("Screen.zig").Screen;
 const Dictionary = @import("Dictionary.zig").Dictionary;
 
 pub const RoundStats = struct {
+    wpm: f64,
     cpm: f64,
 };
 
@@ -40,10 +41,11 @@ pub fn playRound(
     const end_time = std.time.milliTimestamp();
     const time_taken_ms = end_time - start_time;
 
-    // Calculate CPM
-    const cpm = @divFloor(@as(i64, @intCast(char_index)), time_taken_ms);
+    const wpm = @divFloor(60000, @divFloor(time_taken_ms, 10));
+    const cpm = @divFloor(60000, @divFloor(time_taken_ms, @as(i64, @intCast(char_index))));
 
     return RoundStats{
-        .cpm = @as(f64, @floatFromInt(cpm)) / 1000.0,
+        .wpm = @as(f64, @floatFromInt(wpm)),
+        .cpm = @as(f64, @floatFromInt(cpm)),
     };
 }

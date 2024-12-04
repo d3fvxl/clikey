@@ -15,7 +15,7 @@ const DEBUG_LOADED =
 ;
 
 pub const DictionaryFile = struct {
-    alloc: Allocator,
+    gp_alloc: Allocator,
     data: []const u8,
     words: [][]const u8,
     cursor: usize,
@@ -30,10 +30,9 @@ pub const DictionaryFile = struct {
             alloc.free(data);
         }
         const words = try filter(alloc, data);
-
         const self = try alloc.create(DictionaryFile);
         self.* = DictionaryFile{
-            .alloc = alloc,
+            .gp_alloc = alloc,
             .data = data,
             .words = words,
             .cursor = 0,
@@ -42,44 +41,44 @@ pub const DictionaryFile = struct {
     }
 
     pub fn deinit(self: DictionaryFile) void {
-        self.alloc.free(self.data);
+        self.gp_alloc.free(self.data);
+        self.gp_alloc.free(self.words);
     }
 
-pub fn nextN(self: *DictionaryFile, n: usize) ![]const u8 {
-        const allocator = self.alloc;
-
+    // Returns a list of random words from dictionary.
+    // These errors are possible:
+    //  - error.NoWordsAvailable: self-descriptive.
+    pub fn nextN(self: *DictionaryFile, n: usize) ![]const u8 {
         if (self.words.len == 0) {
             return error.NoWordsAvailable;
         }
-
-        const words_len = self.words.len;
-
-        var indices = try allocator.alloc(usize, words_len);
-        defer allocator.free(indices);
-
-        for (indices, 0..) |*index, idx| {
-            index.* = idx;
+        const word_indexes = try self.gp_alloc.alloc(usize, self.words.len);
+        for (self.words, 0..) |_, idx| {
+            word_indexes[idx] = idx;
         }
-
-        std.crypto.random.shuffle(usize, indices);
-        const count = if (n > words_len) words_len else n;
+        std.crypto.random.shuffle(usize, word_indexes);
+        const count = if (n > self.words.len) self.words.len else n;
 
         var total_length: usize = 0;
-        for (indices[0..count]) |idx| {
-            total_length += self.words[idx].len + 1; // +1 for space
+        for (word_indexes[0..count]) |idx| {
+            total_length += self.words[idx].len;
+            // +1 for space
+            if (idx < word_indexes.len - 1) {
+                total_length += 1;
+            }
         }
 
-        var result = try allocator.alloc(u8, total_length);
+        var result = try self.gp_alloc.alloc(u8, total_length);
         errdefer {
-            allocator.free(result);
+            self.gp_alloc.free(result);
         }
 
         var offset: usize = 0;
-        for (indices[0..count]) |idx| {
+        for (word_indexes[0..count]) |idx| {
             const word = self.words[idx];
-            std.mem.copyForwards(u8, result[offset..offset + word.len], word);
+            std.mem.copyForwards(u8, result[offset .. offset + word.len], word);
             offset += word.len;
-            if (offset < total_length) {
+            if (offset < total_length - 1) {
                 result[offset] = ' ';
                 offset += 1;
             }
@@ -87,8 +86,6 @@ pub fn nextN(self: *DictionaryFile, n: usize) ![]const u8 {
 
         return result[0..offset];
     }
-
-
 };
 
 const allowed_special_chars = [_]u8{};

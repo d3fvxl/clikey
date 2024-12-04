@@ -1,5 +1,6 @@
 const ArrayList = @import("std").ArrayList;
 const ScreenTerminal = @import("ScreenTerminal.zig").ScreenTerminal;
+const RoundStats = @import("Game.zig").RoundStats;
 
 pub const ScreenPixel = struct {
     row: usize,
@@ -21,6 +22,12 @@ pub const Screen = union(enum) {
             .terminal => |terminal| return try terminal.print(words),
         }
     }
+
+    pub fn printStats(self: Screen, stats: RoundStats) !void {
+    switch (self) {
+        .terminal => |terminal| return try terminal.printStats(stats),
+    }
+}
 
     pub fn move(self: Screen, row: usize, col: usize) !void {
         switch (self) {
